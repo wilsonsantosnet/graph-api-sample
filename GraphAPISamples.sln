@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32602.291
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphAPISamplesSdk", "GraphAPISamplesSdk\GraphAPISamplesSdk.csproj", "{FEDDC856-C624-4D8A-B0E3-2497B1730AE9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphAPIConditionalAccess", "GraphAPIConditionalAccess\GraphAPIConditionalAccess.csproj", "{7B6E1955-2617-430B-9D30-271CA1B16B89}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphAPIGroups", "GraphAPIGroups\GraphAPIGroups.csproj", "{E3BFA102-A209-4E77-A518-83B7D0508472}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphAPIPassword", "GraphAPIPassword\GraphAPIPassword.csproj", "{00E84A6E-A25C-4FEA-BFAD-579004F99867}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphAPIRegisterApp", "GraphAPIRegisterApp\GraphAPIRegisterApp.csproj", "{2D7C6819-368D-4D0F-BFD5-65864E14A814}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FEDDC856-C624-4D8A-B0E3-2497B1730AE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FEDDC856-C624-4D8A-B0E3-2497B1730AE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FEDDC856-C624-4D8A-B0E3-2497B1730AE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FEDDC856-C624-4D8A-B0E3-2497B1730AE9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B6E1955-2617-430B-9D30-271CA1B16B89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B6E1955-2617-430B-9D30-271CA1B16B89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B6E1955-2617-430B-9D30-271CA1B16B89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B6E1955-2617-430B-9D30-271CA1B16B89}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3BFA102-A209-4E77-A518-83B7D0508472}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3BFA102-A209-4E77-A518-83B7D0508472}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3BFA102-A209-4E77-A518-83B7D0508472}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3BFA102-A209-4E77-A518-83B7D0508472}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00E84A6E-A25C-4FEA-BFAD-579004F99867}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00E84A6E-A25C-4FEA-BFAD-579004F99867}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00E84A6E-A25C-4FEA-BFAD-579004F99867}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00E84A6E-A25C-4FEA-BFAD-579004F99867}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D7C6819-368D-4D0F-BFD5-65864E14A814}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D7C6819-368D-4D0F-BFD5-65864E14A814}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D7C6819-368D-4D0F-BFD5-65864E14A814}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D7C6819-368D-4D0F-BFD5-65864E14A814}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1D82354C-9ACF-4A2D-A7D2-400B20ED6E36}
+	EndGlobalSection
+EndGlobal
