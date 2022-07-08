@@ -45,9 +45,9 @@ namespace graph_api_samples
         static void Main(string[] args)
         {
 
-            client_id = "53ebfdf3-c8ec-40c5-b922-db3fc7c72bb6";
-            client_secret = "YLW8Q~-g~NBEE5JvDEm8sc~J4T8oVW7sOqzoTcY3";
-            tenantId = "779811d8-4753-4c34-baeb-6b53957d52e3";
+            client_id = "...";
+            client_secret = "...";
+            tenantId = "...";
 
             redirectUri = "http://localhost";
 
