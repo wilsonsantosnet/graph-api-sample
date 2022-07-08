@@ -1,12 +1,11 @@
 ﻿using IdentityModel.Client;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Graph;
 using Microsoft.Graph.Auth;
 using Microsoft.Identity.Client;
 using System;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
 
 namespace graph_api_samples
 {
@@ -27,12 +26,10 @@ namespace graph_api_samples
     class Program
     {
 
-        static string clientId;
-        static string clientSecret;
-        static string tenant;
+        static string client_id;
+        static string client_secret;
+        static string tenantId;
         static string redirectUri;
-        static string passwordActual;
-        static string passwordChange;
 
 
         /// <summary>
@@ -47,35 +44,33 @@ namespace graph_api_samples
         /// <param name="args"></param>
         static void Main(string[] args)
         {
-            var build = new ConfigurationBuilder();
-            build.AddUserSecrets("b06ec606-7a19-41b0-8dbc-befb84252504");
-            var configuration = build.Build();
 
-            clientId = configuration["clientId"];
-            clientSecret = configuration["clientSecret"];
-            tenant = configuration["tenant"];
-            redirectUri = configuration["redirectUri"];
-            passwordActual = configuration["passwordActual"];
-            passwordChange = configuration["passwordChange"];
+            client_id = "53ebfdf3-c8ec-40c5-b922-db3fc7c72bb6";
+            client_secret = "YLW8Q~-g~NBEE5JvDEm8sc~J4T8oVW7sOqzoTcY3";
+            tenantId = "779811d8-4753-4c34-baeb-6b53957d52e3";
 
+            redirectUri = "http://localhost";
 
 
             //CallGraphAPIHttpClient();
-            //CallMeGraphAPISDK();
-            //RedisterAPPMsGraphSDK();
-            RegisterAppHttp();
-            Console.Read();
+            CallMeGraphAPISDKPrivateClient();
+            //CallMeGraphAPISDKPublicClient();
+            //Console.Read();
         }
 
-        private static void CallMeGraphAPISDK()
+        /// <summary>
+        /// https://docs.microsoft.com/pt-br/azure/active-directory/develop/msal-net-initializing-client-applications
+        /// https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/wiki/System-Browser-on-.Net-Core
+        /// </summary>
+        private static void CallMeGraphAPISDKPublicClient()
         {
 
-            var app = PublicClientApplicationBuilder.Create(clientId)
-                .WithAuthority(new Uri($"https://login.microsoftonline.com/{tenant}"))
+            var app = PublicClientApplicationBuilder.Create(client_id)
+                .WithAuthority(new Uri($"https://login.microsoftonline.com/{tenantId}"))
                 .WithRedirectUri(redirectUri)
                 .Build();
 
-            var authenticationProvider = new InteractiveAuthenticationProvider(app);
+            var authenticationProvider = new InteractiveAuthenticationProvider(app, new string[] { "https://graph.microsoft.com/User.Read " });
 
             var graphServiceClient = new GraphServiceClient(authenticationProvider);
 
@@ -85,46 +80,45 @@ namespace graph_api_samples
 
             graphServiceClient.Communications.Request();
 
-            //graphServiceClient.Me.ChangePassword(passwordActual, passwordChange).Request().PostAsync().Wait();
-
             
 
             Console.Read();
         }
 
-        private static void RedisterAPPMsGraphSDK()
+
+        private static void CallMeGraphAPISDKPrivateClient()
         {
+            var scopes = new string[] { "https://graph.microsoft.com/.default" };
 
-            var app = PublicClientApplicationBuilder.Create(clientId)
-               .WithAuthority(new Uri($"https://login.microsoftonline.com/{tenant}"))
-               .WithRedirectUri(redirectUri)
-               .Build();
+            var confidentialClient = ConfidentialClientApplicationBuilder
+                .Create(client_id)
+                .WithTenantId(tenantId)
+                .WithClientSecret(client_secret)
+                .Build();
 
-            var authenticationProvider = new InteractiveAuthenticationProvider(app);
+            GraphServiceClient graphServiceClient = new GraphServiceClient(new DelegateAuthenticationProvider(async (requestMessage) => {
 
-            GraphServiceClient graphClient = new GraphServiceClient(authenticationProvider);
+                    // Retrieve an access token for Microsoft Graph (gets a fresh token if needed).
+                    var authResult = await confidentialClient
+                        .AcquireTokenForClient(scopes)
+                        .ExecuteAsync();
 
-            var application = new Application
-            {
-                DisplayName = "teste Wilson"
-            };
+                    // Add the access token in the Authorization header of the API request.
+                    requestMessage.Headers.Authorization =
+                        new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
+                })
+            );
 
-            var result = graphClient.Applications
-                .Request()
-                .AddAsync(application).Result;
+
+            var users = graphServiceClient.Users.Request().GetAsync().Result;
+
+
+            Console.WriteLine($"{users.FirstOrDefault().DisplayName}");
+            graphServiceClient.Communications.Request();
+
         }
 
-        private static void RegisterAppHttp()
-        {
-            ///Obtem token para a aplicação Fluxo Client Credencial
-            var accessToken = GetAccessTokeToApplicationWithHttpClientAzureAD();
-            Console.WriteLine("Token:");
-            Console.WriteLine(accessToken);
 
-            //Registra app
-            RegisterAppHttp(accessToken);
-            
-        }
 
         private static void CallGraphAPIHttpClient()
         {
@@ -138,11 +132,7 @@ namespace graph_api_samples
             Console.WriteLine("Response:");
             Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(result));
 
-            //var id = result.value[0].id;
             var id = result.value[2].id;
-            //Tenta Realizar operações de Trocar A senha
-            //ChangePasswordFunction(accessToken, id);
-            ChangePasswordProfileWithHttpClient(accessToken, id);
         }
 
 
@@ -171,95 +161,6 @@ namespace graph_api_samples
 
 
         /// <summary>
-        /// https://docs.microsoft.com/en-us/graph/api/application-post-applications?view=graph-rest-beta&tabs=http
-        /// </summary>
-        /// <param name="accessToken"></param>
-        /// <returns></returns>
-        private static void RegisterAppHttp(string accessToken)
-        {
-            using (var client = new HttpClient())
-            {
-                client.BaseAddress = new Uri($"https://graph.microsoft.com/beta/");
-                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
-                var json = System.Text.Json.JsonSerializer.Serialize(new
-                {
-                    displayName = "teste APP Ms Graph",
-                });
-                var changePasswordResponse = client.PostAsync("applications", new StringContent(json, Encoding.UTF8, "application/json")).Result;
-                var statusCode = changePasswordResponse.StatusCode;
-            }
-
-        }
-
-        /// <summary>
-        /// https://docs.microsoft.com/en-us/previous-versions/azure/ad/graph/api/functions-and-actions#changePassword
-        /// </summary>
-        /// <param name="accessToken"></param>
-        /// <param name="id"></param>
-        private static void ChangePasswordFunction(string accessToken, string id)
-        {
-            using (var changePasswordClient = new HttpClient())
-            {
-                changePasswordClient.BaseAddress = new Uri($"https://graph.windows.net/users/{id}");
-                changePasswordClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
-
-
-                var json = System.Text.Json.JsonSerializer.Serialize(new
-                {
-                    currentPassword = passwordActual,
-                    newPassword = passwordChange
-                });
-                var changePasswordResponse = changePasswordClient.PostAsync("changePassword?api-version-1.6", new StringContent(json, Encoding.UTF8, "application/json")).Result;
-                var statusCode = changePasswordResponse.StatusCode;
-            }
-        }
-
-        /// <summary>
-        /// https://docs.microsoft.com/en-us/graph/api/user-update?view=graph-rest-1.0&tabs=http#example-3-update-the-passwordprofile-of-a-user-to-reset-their-password
-        /// </summary>
-        /// <param name="accessToken"></param>
-        /// <param name="id"></param>
-        private static void ChangePasswordProfileWithHttpClient(string accessToken,string id)
-        {
-            var urlChangePassword = $"https://graph.microsoft.com/v1.0/users/{id}";
-            using (HttpClient changePasswordClient = new HttpClient())
-            {
-
-                var json = System.Text.Json.JsonSerializer.Serialize(new
-                {
-                    passwordProfile = new
-                    {
-                        forceChangePasswordNextSignIn = false,
-                        password = passwordChange
-                    }
-                });
-                var requestChangePassword = new HttpRequestMessage(HttpMethod.Patch, urlChangePassword);
-                requestChangePassword.Content = new StringContent(json, Encoding.UTF8, "application/json");
-                requestChangePassword.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-                var changePasswordResponseApi = changePasswordClient.SendAsync(requestChangePassword).Result;
-                changePasswordResponseApi.EnsureSuccessStatusCode();
-            }
-        }
-
-        /// <summary>
-        /// https://docs.microsoft.com/pt-br/graph/auth-v2-service
-        /// </summary>
-        /// <returns></returns>
-        private static string  GetAccessTokeToApplicationWithHttpClientAzureAdB2c()
-        {
-            var client = new HttpClient();
-            var response = client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
-            {
-                Address = $"https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token",
-                ClientId = clientId,
-                ClientSecret = clientSecret,
-                Scope = "https://graph.microsoft.com/.default"
-
-            }).Result;
-            return response.AccessToken;
-        }
-
-        /// <summary>
         /// https://docs.microsoft.com/pt-br/graph/auth-v2-service
         /// </summary>
         /// <returns></returns>
@@ -268,9 +169,9 @@ namespace graph_api_samples
             var client = new HttpClient();
             var response = client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
             {
-                Address = $"https://login.microsoftonline.com/common/oauth2/v2.0/token",
-                ClientId = clientId,
-                ClientSecret = clientSecret,
+                Address = $"https://login.microsoftonline.com/{tenantId}/oauth2/v2.0/token",
+                ClientId = client_id,
+                ClientSecret = client_secret,
                 Scope = "https://graph.microsoft.com/.default"
 
             }).Result;
